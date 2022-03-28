@@ -298,4 +298,53 @@ GROUP BY city
 ORDER BY Количество DESC 
 LIMIT 2;
 ```
-6. 
+6. Вывести информацию о командировках во все города кроме Москвы и Санкт-Петербурга
+(фамилии и инициалы сотрудников, город ,  длительность командировки в днях, 
+при этом первый и последний день относится к периоду командировки). 
+Последний столбец назвать Длительность. Информацию вывести в упорядоченном по убыванию 
+длительности поездки, а потом по убыванию названий городов (в обратном алфавитном порядке).
+```sql
+SELECT name, city, DATEDIFF(date_last, date_first)+1 AS Длительность
+FROM trip
+WHERE city NOT IN ('Москва', 'Санкт-Петербург')
+ORDER BY Длительность DESC;
+```
+```postgresql
+SELECT name, city, DATE_PART('day', date_last::timestamp - date_first::timestamp) + 1 AS Длительность
+FROM trip
+WHERE city NOT IN ('Москва', 'Санкт-Петербург')
+ORDER BY Длительность DESC;
+```
+7. Вывести информацию о командировках сотрудника(ов), которые были самыми короткими по времени. 
+В результат включить столбцы name, city, date_first, date_last.
+```sql
+SELECT name, city, date_first, date_last
+FROM trip
+WHERE DATEDIFF(date_last, date_first) = (
+    SELECT MIN(DATEDIFF(date_last, date_first))
+    FROM trip
+    );
+```
+```postgresql
+SELECT name, city, date_first, date_last
+FROM trip
+WHERE DATE_PART('day', date_last::timestamp - date_first::timestamp) = (
+    SELECT MIN(DATE_PART('day', date_last::timestamp - date_first::timestamp))
+    FROM trip
+    );
+```
+8. Вывести информацию о командировках, начало и конец которых относятся к одному месяцу 
+(год может быть любой). В результат включить столбцы name, city, date_first, date_last.
+Строки отсортировать сначала в алфавитном порядке по названию города, а затем по фамилии сотрудника.
+```sql
+SELECT name, city, date_first, date_last
+FROM trip
+WHERE MONTH(date_first)=MONTH(date_last)
+ORDER BY city, name;
+```
+```postgresql
+SELECT name, city, date_first, date_last
+FROM trip
+WHERE EXTRACT(MONTH FROM date_first)=EXTRACT(MONTH FROM date_last)
+ORDER BY city, name;
+```
