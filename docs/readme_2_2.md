@@ -8,3 +8,11 @@ FROM
 WHERE amount > 8
 ORDER BY price DESC;
 ```
+2. Вывести все жанры, которые не представлены в книгах на складе.
+```sql
+SELECT name_genre
+FROM genre
+    LEFT JOIN book b on genre.genre_id = b.genre_id
+WHERE b.genre_id IS NULL;
+
+```
